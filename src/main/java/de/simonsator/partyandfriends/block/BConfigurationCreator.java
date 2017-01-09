@@ -21,9 +21,11 @@ public class BConfigurationCreator extends ConfigurationCreator {
 	private void defaultValues() {
 		set("Commands.Block.Name", "block", "blockplayer");
 		set("Commands.Block.Priority", 1000);
+		set("Commands.UnBlock.Name", "unblock", "unblockplayer");
 		set("Commands.UnBlock.Priority", 1001);
 		set("Messages.Block.CommandUsage", "&8/&5friend block [name of the player]&r &8- &7Blocks a player");
 		set("Messages.Block.Blocked", " &7You blocked successfully  the player &e[PLAYER]");
+		set("Messages.Block.GivenPlayerEqualsExecutor", " &7You cannot block yourself.");
 		set("Messages.Block.Friends", " &7Before you can block this player you need first to remove this friend by using the command &5/friend remove [PLAYER]");
 		set("Messages.Block.AlreadyBlocked", " &7You already blocked the player &e[PLAYER]");
 		set("Messages.UnBlock.CommandUsage", "&8/&5friend unblock [name of the player]&r &8- &7Unblocks a player");

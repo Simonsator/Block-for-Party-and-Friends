@@ -1,4 +1,4 @@
-name: Block
+name: PAF-Block
 version: ${project.version}
 author: Simonsator
 depends: [PartyAndFriends]

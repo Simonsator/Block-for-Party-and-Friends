@@ -22,6 +22,8 @@ import net.md_5.bungee.event.EventHandler;
 import java.io.File;
 import java.io.IOException;
 
+import static de.simonsator.partyandfriends.utilities.PatterCollection.PLAYER_PATTERN;
+
 /**
  * @author simonbrungs
  * @version 1.0.0 09.01.17
@@ -47,7 +49,7 @@ public class BMain extends Plugin implements Listener {
 
 	@EventHandler
 	public void onInvite(InviteEvent pEvent) {
-		if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer())) {
+		if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
 			pEvent.getExecutor().sendMessage(new TextComponent(Main.getInstance().getPartyPrefix()
 					+ Main.getInstance().getMessagesYml().getString("Party.Command.Invite.CanNotInviteThisPlayer")));
 			pEvent.setCancelled(true);
@@ -57,8 +59,8 @@ public class BMain extends Plugin implements Listener {
 	@EventHandler
 	public void onAdd(FriendshipCommandEvent pEvent) {
 		if (pEvent.getCaller().getClass().equals(Add.class))
-			if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer())) {
-				pEvent.getCaller().sendError(pEvent.getExecutor(), "Friends.Command.Add.CanNotSendThisPlayer");
+			if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
+				pEvent.getCaller().sendError(pEvent.getExecutor(), Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher("Friends.Command.Add.CanNotSendThisPlayer").replaceFirst(pEvent.getInteractPlayer().getName()));
 				pEvent.setCancelled(true);
 			}
 	}

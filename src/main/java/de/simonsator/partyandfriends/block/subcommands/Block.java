@@ -21,6 +21,7 @@ public class Block extends FriendSubCommand {
 	private final Matcher FRIENDS;
 	private final Matcher ALREADY_BLOCKED;
 	private final Matcher BLOCKED;
+	private final String GIVEN_PLAYER_EQUALS_EXECUTER;
 	private final BMain PLUGIN;
 	private final Deny DENY_COMMAND = (Deny) Friends.getInstance().getSubCommand(Deny.class);
 
@@ -30,13 +31,19 @@ public class Block extends FriendSubCommand {
 		FRIENDS = PatterCollection.PLAYER_PATTERN.matcher(pConfig.getString("Messages.Block.Friends"));
 		BLOCKED = PatterCollection.PLAYER_PATTERN.matcher(pConfig.getString("Messages.Block.Blocked"));
 		ALREADY_BLOCKED = PatterCollection.PLAYER_PATTERN.matcher(pConfig.getString("Messages.Block.AlreadyBlocked"));
-
+		GIVEN_PLAYER_EQUALS_EXECUTER = pConfig.getString("Messages.Block.GivenPlayerEqualsExecutor");
 	}
 
 	@Override
 	public void onCommand(OnlinePAFPlayer pPlayer, String[] args) {
+		if (!isPlayerGiven(pPlayer, args))
+			return;
+		if (pPlayer.getName().equalsIgnoreCase(args[1])) {
+			sendError(pPlayer, new TextComponent(Friends.getInstance().getPrefix() + GIVEN_PLAYER_EQUALS_EXECUTER));
+			return;
+		}
 		PAFPlayer toBlock = PAFPlayerManager.getInstance().getPlayer(args[1]);
-		if (toBlock == null) {
+		if (!toBlock.doesExist()) {
 			sendError(pPlayer, "Friends.General.DoesNotExist");
 			return;
 		}
@@ -52,7 +59,8 @@ public class Block extends FriendSubCommand {
 			args[0] = DENY_COMMAND.getCommandName();
 			DENY_COMMAND.onCommand(pPlayer, args);
 		}
+		toBlock.denyRequest(pPlayer);
 		PLUGIN.addBlock(pPlayer, toBlock);
-		pPlayer.sendMessage(Friends.getInstance().getPrefix() + BLOCKED.replaceFirst(pPlayer.getDisplayName()));
+		pPlayer.sendMessage(Friends.getInstance().getPrefix() + BLOCKED.replaceFirst(toBlock.getDisplayName()));
 	}
 }

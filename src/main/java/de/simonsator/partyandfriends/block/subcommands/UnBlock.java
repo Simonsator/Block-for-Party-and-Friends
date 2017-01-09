@@ -33,7 +33,7 @@ public class UnBlock extends FriendSubCommand {
 		if (!isPlayerGiven(pPlayer, args))
 			return;
 		PAFPlayer toUnBlock = PAFPlayerManager.getInstance().getPlayer(args[1]);
-		if (toUnBlock == null) {
+		if (!toUnBlock.doesExist()) {
 			sendError(pPlayer, new TextComponent(Friends.getInstance().getPrefix() + NOT_BLOCKED.replaceFirst(args[1])));
 			return;
 		}
@@ -42,6 +42,6 @@ public class UnBlock extends FriendSubCommand {
 			return;
 		}
 		PLUGIN.removeBlock(pPlayer, toUnBlock);
-		pPlayer.sendMessage(Friends.getInstance().getPrefix() + UNBLOCKED.replaceFirst(pPlayer.getDisplayName()));
+		pPlayer.sendMessage(Friends.getInstance().getPrefix() + UNBLOCKED.replaceFirst(toUnBlock.getDisplayName()));
 	}
 }

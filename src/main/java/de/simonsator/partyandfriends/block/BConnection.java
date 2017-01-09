@@ -38,8 +38,8 @@ public class BConnection extends SQLCommunication {
 		Statement stmt = null;
 		ResultSet rs = null;
 		try {
-			rs = (stmt = con.createStatement()).executeQuery("Select friend1_id FROM `" + DATABASE + "`." + TABLE_PREFIX
-					+ "blocked WHERE blocker_id = '" + pBlocker + "' AND blocked_id='" + pBlocked + " LIMIT 1");
+			rs = (stmt = con.createStatement()).executeQuery("Select blocker_id FROM `" + DATABASE + "`." + TABLE_PREFIX
+					+ "blocked WHERE blocker_id = '" + pBlocker + "' AND blocked_id='" + pBlocked + "' LIMIT 1");
 			if (rs.next())
 				return true;
 		} catch (SQLException e) {
@@ -52,10 +52,33 @@ public class BConnection extends SQLCommunication {
 	}
 
 	public void addBlock(int pBlocker, int pBlocked) {
-
+		Connection con = getConnection();
+		PreparedStatement prepStmt = null;
+		try {
+			prepStmt = con.prepareStatement(
+					"insert into `" + DATABASE + "`." + TABLE_PREFIX + "blocked values (?, ?)");
+			prepStmt.setInt(1, pBlocker);
+			prepStmt.setInt(2, pBlocked);
+			prepStmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(prepStmt);
+		}
 	}
 
 	public void removeBlock(int pBlocker, int pBlocked) {
-
+		Connection con = getConnection();
+		PreparedStatement prepStmt = null;
+		try {
+			prepStmt = con.prepareStatement(
+					"DELETE FROM `" + DATABASE + "`." + TABLE_PREFIX + "blocked WHERE blocker_id = '"
+							+ pBlocker + "' AND blocked_id='" + pBlocked + "' Limit 1");
+			prepStmt.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(prepStmt);
+		}
 	}
 }
