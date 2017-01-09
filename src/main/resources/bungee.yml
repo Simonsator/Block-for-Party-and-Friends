@@ -1,0 +1,6 @@
+name: Block
+version: ${project.version}
+author: Simonsator
+depends: [PartyAndFriends]
+main: de.simonsator.partyandfriends.block.BMain
+description: An add-on for party and friends extended to block players
