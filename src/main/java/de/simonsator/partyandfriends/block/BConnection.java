@@ -4,6 +4,8 @@ import de.simonsator.partyandfriends.communication.sql.MySQLData;
 import de.simonsator.partyandfriends.communication.sql.SQLCommunication;
 
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author simonbrungs
@@ -48,7 +50,6 @@ public class BConnection extends SQLCommunication {
 			close(rs, stmt);
 		}
 		return false;
-
 	}
 
 	public void addBlock(int pBlocker, int pBlocked) {
@@ -80,5 +81,22 @@ public class BConnection extends SQLCommunication {
 		} finally {
 			close(prepStmt);
 		}
+	}
+
+	public List<Integer> getBlockedPlayers(int pBlocker) {
+		Connection con = getConnection();
+		Statement stmt = null;
+		ResultSet rs = null;
+		List<Integer> list = new LinkedList<>();
+		try {
+			rs = (stmt = con.createStatement()).executeQuery("Select blocked_id FROM `" + DATABASE + "`." + TABLE_PREFIX
+					+ "blocked WHERE blocker_id = '" + pBlocker + "'");
+			while (rs.next()) list.add(rs.getInt(1));
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close(rs, stmt);
+		}
+		return list;
 	}
 }

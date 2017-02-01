@@ -4,12 +4,15 @@ import de.simonsator.partyandfriends.api.events.command.FriendshipCommandEvent;
 import de.simonsator.partyandfriends.api.events.command.party.InviteEvent;
 import de.simonsator.partyandfriends.api.pafplayers.OnlinePAFPlayer;
 import de.simonsator.partyandfriends.api.pafplayers.PAFPlayer;
+import de.simonsator.partyandfriends.api.pafplayers.PAFPlayerManager;
 import de.simonsator.partyandfriends.block.subcommands.Block;
+import de.simonsator.partyandfriends.block.subcommands.BlockList;
 import de.simonsator.partyandfriends.block.subcommands.UnBlock;
 import de.simonsator.partyandfriends.communication.sql.MySQLData;
 import de.simonsator.partyandfriends.friends.commands.Friends;
 import de.simonsator.partyandfriends.friends.subcommands.Add;
 import de.simonsator.partyandfriends.main.Main;
+import de.simonsator.partyandfriends.pafplayers.manager.PAFPlayerManagerMySQL;
 import de.simonsator.partyandfriends.pafplayers.mysql.OnlinePAFPlayerMySQL;
 import de.simonsator.partyandfriends.pafplayers.mysql.PAFPlayerMySQL;
 import net.md_5.bungee.api.ProxyServer;
@@ -21,6 +24,8 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static de.simonsator.partyandfriends.utilities.PatterCollection.PLAYER_PATTERN;
 
@@ -42,6 +47,8 @@ public class BMain extends Plugin implements Listener {
 			ProxyServer.getInstance().getPluginManager().registerListener(this, this);
 			Friends.getInstance().addCommand(new Block(configuration.getStringList("Commands.Block.Name").toArray(new String[1]), configuration.getInt("Commands.Block.Priority"), configuration.getString("Messages.Block.CommandUsage"), this, configuration));
 			Friends.getInstance().addCommand(new UnBlock(configuration.getStringList("Commands.UnBlock.Name").toArray(new String[1]), configuration.getInt("Commands.UnBlock.Priority"), configuration.getString("Messages.UnBlock.CommandUsage"), this, configuration));
+			if (configuration.getBoolean("Commands.BlockList.Use"))
+				Friends.getInstance().addCommand(new BlockList(this, configuration));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -79,5 +86,13 @@ public class BMain extends Plugin implements Listener {
 	public void removeBlock(OnlinePAFPlayer pBlocker, PAFPlayer pBlocked) {
 		connection.removeBlock(((OnlinePAFPlayerMySQL) pBlocker).getPlayerID(),
 				((PAFPlayerMySQL) pBlocked).getPlayerID());
+	}
+
+	public List<PAFPlayer> getBlockedPlayers(OnlinePAFPlayer pPlayer) {
+		List<Integer> idList = connection.getBlockedPlayers(((PAFPlayerMySQL) pPlayer).getPlayerID());
+		List<PAFPlayer> pafPlayers = new ArrayList<>(idList.size());
+		for (int id : idList)
+			pafPlayers.add(((PAFPlayerManagerMySQL) PAFPlayerManager.getInstance()).getPlayer(id));
+		return pafPlayers;
 	}
 }
