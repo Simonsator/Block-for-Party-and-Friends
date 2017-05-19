@@ -1,5 +1,6 @@
 package de.simonsator.partyandfriends.block;
 
+import de.simonsator.partyandfriends.api.PAFExtension;
 import de.simonsator.partyandfriends.api.events.command.FriendshipCommandEvent;
 import de.simonsator.partyandfriends.api.events.command.party.InviteEvent;
 import de.simonsator.partyandfriends.api.pafplayers.OnlinePAFPlayer;
@@ -18,7 +19,6 @@ import de.simonsator.partyandfriends.pafplayers.mysql.PAFPlayerMySQL;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.event.EventHandler;
 
@@ -30,16 +30,16 @@ import java.util.List;
 import static de.simonsator.partyandfriends.utilities.PatterCollection.PLAYER_PATTERN;
 
 /**
- * @author simonbrungs
+ * @author Simonsator
  * @version 1.0.0 09.01.17
  */
-public class BMain extends Plugin implements Listener {
+public class BMain extends PAFExtension implements Listener {
 	private BConnection connection;
 
 	@Override
 	public void onEnable() {
 		try {
-			Configuration configuration = (new BConfigurationCreator(new File(getDataFolder(), "config.yml"))).getCreatedConfiguration();
+			Configuration configuration = (new BConfigurationCreator(new File(getConfigFolder(), "config.yml"))).getCreatedConfiguration();
 			connection = new BConnection(new MySQLData(Main.getInstance().getConfig().getString("MySQL.Host"),
 					Main.getInstance().getConfig().getString("MySQL.Username"), Main.getInstance().getConfig().getString("MySQL.Password"),
 					Main.getInstance().getConfig().getInt("MySQL.Port"), Main.getInstance().getConfig().getString("MySQL.Database"),
@@ -52,6 +52,11 @@ public class BMain extends Plugin implements Listener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onDisable() {
+		ProxyServer.getInstance().getPluginManager().unregisterListeners(this);
 	}
 
 	@EventHandler
@@ -74,25 +79,30 @@ public class BMain extends Plugin implements Listener {
 
 
 	public boolean isBlocked(PAFPlayer pBlocker, PAFPlayer pBlocked) {
-		return connection.isBlocked(((PAFPlayerMySQL) pBlocker).getPlayerID(),
-				((PAFPlayerMySQL) pBlocked).getPlayerID());
+		return connection.isBlocked(((PAFPlayerMySQL) pBlocker.getPAFPlayer()).getPlayerID(),
+				((PAFPlayerMySQL) pBlocked.getPAFPlayer()).getPlayerID());
 	}
 
 	public void addBlock(OnlinePAFPlayer pBlocker, PAFPlayer pBlocked) {
 		connection.addBlock(((OnlinePAFPlayerMySQL) pBlocker).getPlayerID(),
-				((PAFPlayerMySQL) pBlocked).getPlayerID());
+				((PAFPlayerMySQL) pBlocked.getPAFPlayer()).getPlayerID());
 	}
 
 	public void removeBlock(OnlinePAFPlayer pBlocker, PAFPlayer pBlocked) {
 		connection.removeBlock(((OnlinePAFPlayerMySQL) pBlocker).getPlayerID(),
-				((PAFPlayerMySQL) pBlocked).getPlayerID());
+				((PAFPlayerMySQL) pBlocked.getPAFPlayer()).getPlayerID());
 	}
 
 	public List<PAFPlayer> getBlockedPlayers(OnlinePAFPlayer pPlayer) {
-		List<Integer> idList = connection.getBlockedPlayers(((PAFPlayerMySQL) pPlayer).getPlayerID());
+		List<Integer> idList = connection.getBlockedPlayers(((PAFPlayerMySQL) pPlayer.getPAFPlayer()).getPlayerID());
 		List<PAFPlayer> pafPlayers = new ArrayList<>(idList.size());
 		for (int id : idList)
 			pafPlayers.add(((PAFPlayerManagerMySQL) PAFPlayerManager.getInstance()).getPlayer(id));
 		return pafPlayers;
+	}
+
+	@Override
+	public void reload() {
+		onEnable();
 	}
 }
