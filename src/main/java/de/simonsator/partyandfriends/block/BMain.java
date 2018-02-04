@@ -16,6 +16,7 @@ import de.simonsator.partyandfriends.main.Main;
 import de.simonsator.partyandfriends.pafplayers.manager.PAFPlayerManagerMySQL;
 import de.simonsator.partyandfriends.pafplayers.mysql.OnlinePAFPlayerMySQL;
 import de.simonsator.partyandfriends.pafplayers.mysql.PAFPlayerMySQL;
+import de.simonsator.partyandfriends.party.command.PartyCommand;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -62,8 +63,8 @@ public class BMain extends PAFExtension implements Listener {
 	@EventHandler
 	public void onInvite(InviteEvent pEvent) {
 		if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
-			pEvent.getExecutor().sendMessage(new TextComponent(Main.getInstance().getPartyPrefix()
-					+ Main.getInstance().getMessagesYml().getString("Party.Command.Invite.CanNotInviteThisPlayer")));
+			pEvent.getExecutor().sendMessage(new TextComponent(PartyCommand.getInstance().getPrefix()
+					+ Main.getInstance().getMessages().getString("Party.Command.Invite.CanNotInviteThisPlayer")));
 			pEvent.setCancelled(true);
 		}
 	}
@@ -72,7 +73,7 @@ public class BMain extends PAFExtension implements Listener {
 	public void onAdd(FriendshipCommandEvent pEvent) {
 		if (pEvent.getCaller().getClass().equals(Add.class))
 			if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
-				pEvent.getCaller().sendError(pEvent.getExecutor(), Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher("Friends.Command.Add.CanNotSendThisPlayer").replaceFirst(pEvent.getInteractPlayer().getName()));
+				pEvent.getCaller().sendError(pEvent.getExecutor(), Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher(Main.getInstance().getMessages().getString("Friends.Command.Add.CanNotSendThisPlayer")).replaceFirst(pEvent.getInteractPlayer().getName()));
 				pEvent.setCancelled(true);
 			}
 	}
