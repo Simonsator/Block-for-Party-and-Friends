@@ -15,7 +15,7 @@ public class BConnection extends SQLCommunication {
 	private final String TABLE_PREFIX;
 
 	public BConnection(MySQLData pMySQLData) {
-		super(pMySQLData.DATABASE, "jdbc:mysql://" + pMySQLData.HOST + ":" + pMySQLData.PORT, pMySQLData.USERNAME, pMySQLData.PASSWORD);
+		super(pMySQLData);
 		this.TABLE_PREFIX = pMySQLData.TABLE_PREFIX;
 		importTable();
 	}

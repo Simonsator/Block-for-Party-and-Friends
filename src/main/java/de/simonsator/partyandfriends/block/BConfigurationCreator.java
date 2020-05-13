@@ -1,5 +1,6 @@
 package de.simonsator.partyandfriends.block;
 
+import de.simonsator.partyandfriends.api.PAFExtension;
 import de.simonsator.partyandfriends.utilities.ConfigurationCreator;
 
 import java.io.File;
@@ -10,20 +11,23 @@ import java.io.IOException;
  * @version 1.0.0 09.01.17
  */
 public class BConfigurationCreator extends ConfigurationCreator {
-	protected BConfigurationCreator(File pFile) throws IOException {
-		super(pFile);
+	protected BConfigurationCreator(File pFile, PAFExtension pPlugin) throws IOException {
+		super(pFile, pPlugin);
 		readFile();
 		defaultValues();
 		saveFile();
-		process(configuration);
+		process();
 	}
 
 	private void defaultValues() {
 		set("Commands.Block.Name", "block", "blockplayer");
+		set("Commands.Block.Permission", "");
 		set("Commands.Block.Priority", 1000);
 		set("Commands.UnBlock.Name", "unblock", "unblockplayer");
+		set("Commands.UnBlock.Permission", "");
 		set("Commands.UnBlock.Priority", 1001);
 		set("Commands.BlockList.Name", "blocklist", "listblock", "listblocked", "blockedlist");
+		set("Commands.BlockList.Permission", "");
 		set("Commands.BlockList.Priority", 1002);
 		set("Commands.BlockList.Use", true);
 		set("Messages.Block.CommandUsage", "&8/&5friend block [name of the player]&r &8- &7Blocks a player");
@@ -40,10 +44,5 @@ public class BConfigurationCreator extends ConfigurationCreator {
 		set("Messages.List.Color", "&c");
 		set("Messages.List.PlayerSplit", "&7, ");
 		set("Messages.List.List", " &7You blocked these players: ");
-	}
-
-	@Override
-	public void reloadConfiguration() throws IOException {
-		configuration = (new BConfigurationCreator(FILE)).getCreatedConfiguration();
 	}
 }

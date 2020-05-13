@@ -17,10 +17,10 @@ import de.simonsator.partyandfriends.pafplayers.manager.PAFPlayerManagerMySQL;
 import de.simonsator.partyandfriends.pafplayers.mysql.OnlinePAFPlayerMySQL;
 import de.simonsator.partyandfriends.pafplayers.mysql.PAFPlayerMySQL;
 import de.simonsator.partyandfriends.party.command.PartyCommand;
+import de.simonsator.partyandfriends.utilities.ConfigurationCreator;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.event.EventHandler;
 
 import java.io.File;
@@ -40,14 +40,14 @@ public class BMain extends PAFExtension implements Listener {
 	@Override
 	public void onEnable() {
 		try {
-			Configuration configuration = (new BConfigurationCreator(new File(getConfigFolder(), "config.yml"))).getCreatedConfiguration();
-			connection = new BConnection(new MySQLData(Main.getInstance().getConfig().getString("MySQL.Host"),
-					Main.getInstance().getConfig().getString("MySQL.Username"), Main.getInstance().getConfig().getString("MySQL.Password"),
-					Main.getInstance().getConfig().getInt("MySQL.Port"), Main.getInstance().getConfig().getString("MySQL.Database"),
-					Main.getInstance().getConfig().getString("MySQL.TablePrefix")));
+			ConfigurationCreator configuration = new BConfigurationCreator(new File(getConfigFolder(), "config.yml"), this);
+			connection = new BConnection(new MySQLData(Main.getInstance().getGeneralConfig().getString("MySQL.Host"),
+					Main.getInstance().getGeneralConfig().getString("MySQL.Username"), Main.getInstance().getGeneralConfig().getString("MySQL.Password"),
+					Main.getInstance().getGeneralConfig().getInt("MySQL.Port"), Main.getInstance().getGeneralConfig().getString("MySQL.Database"),
+					Main.getInstance().getGeneralConfig().getString("MySQL.TablePrefix"), Main.getInstance().getGeneralConfig().getBoolean("MySQL.UseSSL")));
 			ProxyServer.getInstance().getPluginManager().registerListener(this, this);
-			Friends.getInstance().addCommand(new Block(configuration.getStringList("Commands.Block.Name").toArray(new String[1]), configuration.getInt("Commands.Block.Priority"), configuration.getString("Messages.Block.CommandUsage"), this, configuration));
-			Friends.getInstance().addCommand(new UnBlock(configuration.getStringList("Commands.UnBlock.Name").toArray(new String[1]), configuration.getInt("Commands.UnBlock.Priority"), configuration.getString("Messages.UnBlock.CommandUsage"), this, configuration));
+			Friends.getInstance().addCommand(new Block(configuration.getStringList("Commands.Block.Name"), configuration.getInt("Commands.Block.Priority"), configuration.getString("Messages.Block.Permission"), configuration.getString("Messages.Block.CommandUsage"), this, configuration));
+			Friends.getInstance().addCommand(new UnBlock(configuration.getStringList("Commands.UnBlock.Name"), configuration.getInt("Commands.UnBlock.Priority"), configuration.getString("Messages.UnBlock.Permission"), configuration.getString("Messages.UnBlock.CommandUsage"), this, configuration));
 			if (configuration.getBoolean("Commands.BlockList.Use"))
 				Friends.getInstance().addCommand(new BlockList(this, configuration));
 		} catch (IOException e) {
@@ -63,7 +63,7 @@ public class BMain extends PAFExtension implements Listener {
 	@EventHandler
 	public void onInvite(InviteEvent pEvent) {
 		if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
-			pEvent.getExecutor().sendMessage(new TextComponent(PartyCommand.getInstance().getPrefix()
+			pEvent.getCaller().sendError(pEvent.getExecutor(), new TextComponent(PartyCommand.getInstance().getPrefix()
 					+ Main.getInstance().getMessages().getString("Party.Command.Invite.CanNotInviteThisPlayer")));
 			pEvent.setCancelled(true);
 		}
@@ -73,7 +73,7 @@ public class BMain extends PAFExtension implements Listener {
 	public void onAdd(FriendshipCommandEvent pEvent) {
 		if (pEvent.getCaller().getClass().equals(Add.class))
 			if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
-				pEvent.getCaller().sendError(pEvent.getExecutor(), Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher(Main.getInstance().getMessages().getString("Friends.Command.Add.CanNotSendThisPlayer")).replaceFirst(pEvent.getInteractPlayer().getName()));
+				pEvent.getCaller().sendError(pEvent.getExecutor(), new TextComponent(Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher(Main.getInstance().getMessages().getString("Friends.Command.Add.CanNotSendThisPlayer")).replaceFirst(pEvent.getInteractPlayer().getName())));
 				pEvent.setCancelled(true);
 			}
 	}
@@ -100,10 +100,5 @@ public class BMain extends PAFExtension implements Listener {
 		for (int id : idList)
 			pafPlayers.add(((PAFPlayerManagerMySQL) PAFPlayerManager.getInstance()).getPlayer(id));
 		return pafPlayers;
-	}
-
-	@Override
-	public void reload() {
-		onEnable();
 	}
 }

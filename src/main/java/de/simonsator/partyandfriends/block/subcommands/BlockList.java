@@ -4,7 +4,7 @@ import de.simonsator.partyandfriends.api.friends.abstractcommands.FriendSubComma
 import de.simonsator.partyandfriends.api.pafplayers.OnlinePAFPlayer;
 import de.simonsator.partyandfriends.api.pafplayers.PAFPlayer;
 import de.simonsator.partyandfriends.block.BMain;
-import net.md_5.bungee.config.Configuration;
+import de.simonsator.partyandfriends.utilities.ConfigurationCreator;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ import java.util.List;
  */
 public class BlockList extends FriendSubCommand {
 	private final BMain PLUGIN;
-	private final Configuration MESSAGES;
+	private final ConfigurationCreator MESSAGES;
 
-	public BlockList(BMain pPlugin, Configuration pConfig) {
-		super(pConfig.getStringList("Commands.BlockList.Name").toArray(new String[0]), pConfig.getInt("Commands.BlockList.Priority"), pConfig.getString("Messages.List.CommandUsage"));
+	public BlockList(BMain pPlugin, ConfigurationCreator pConfig) {
+		super(pConfig.getStringList("Commands.BlockList.Name"), pConfig.getInt("Commands.BlockList.Priority"), pConfig.getString("Messages.List.CommandUsage"), pConfig.getString("Commands.BlockList.Permission"));
 		PLUGIN = pPlugin;
 		MESSAGES = pConfig;
 	}
