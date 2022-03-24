@@ -40,7 +40,7 @@ public class Block extends FriendSubCommand {
 		if (!isPlayerGiven(pPlayer, args))
 			return;
 		if (pPlayer.getName().equalsIgnoreCase(args[1])) {
-			sendError(pPlayer, new TextComponent(PREFIX + GIVEN_PLAYER_EQUALS_EXECUTOR));
+			sendError(pPlayer, new TextComponent(TextComponent.fromLegacyText(PREFIX + GIVEN_PLAYER_EQUALS_EXECUTOR)));
 			return;
 		}
 		PAFPlayer toBlock = PAFPlayerManager.getInstance().getPlayer(args[1]);
@@ -49,11 +49,11 @@ public class Block extends FriendSubCommand {
 			return;
 		}
 		if (pPlayer.isAFriendOf(toBlock)) {
-			sendError(pPlayer, new TextComponent(PREFIX + FRIENDS.replaceFirst(toBlock.getName())));
+			sendError(pPlayer, new TextComponent(TextComponent.fromLegacyText(PREFIX + FRIENDS.replaceFirst(toBlock.getName()))));
 			return;
 		}
 		if (PLUGIN.isBlocked(pPlayer, toBlock)) {
-			sendError(pPlayer, new TextComponent(PREFIX + ALREADY_BLOCKED.replaceFirst(toBlock.getDisplayName())));
+			sendError(pPlayer, new TextComponent(TextComponent.fromLegacyText(PREFIX + ALREADY_BLOCKED.replaceFirst(toBlock.getDisplayName()))));
 			return;
 		}
 		if (pPlayer.hasRequestFrom(toBlock)) {

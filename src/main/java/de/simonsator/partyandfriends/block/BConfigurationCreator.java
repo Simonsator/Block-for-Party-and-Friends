@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 public class BConfigurationCreator extends ConfigurationCreator {
 	protected BConfigurationCreator(File pFile, PAFExtension pPlugin) throws IOException {
-		super(pFile, pPlugin);
+		super(pFile, pPlugin, true);
 		readFile();
 		defaultValues();
 		saveFile();

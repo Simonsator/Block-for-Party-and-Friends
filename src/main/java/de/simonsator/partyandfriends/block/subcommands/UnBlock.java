@@ -34,11 +34,11 @@ public class UnBlock extends FriendSubCommand {
 			return;
 		PAFPlayer toUnBlock = PAFPlayerManager.getInstance().getPlayer(args[1]);
 		if (!toUnBlock.doesExist()) {
-			sendError(pPlayer, new TextComponent(PREFIX + NOT_BLOCKED.replaceFirst(args[1])));
+			sendError(pPlayer, new TextComponent(TextComponent.fromLegacyText(PREFIX + NOT_BLOCKED.replaceFirst(args[1]))));
 			return;
 		}
 		if (!PLUGIN.isBlocked(pPlayer, toUnBlock)) {
-			sendError(pPlayer, new TextComponent(PREFIX + NOT_BLOCKED.replaceFirst(args[1])));
+			sendError(pPlayer, new TextComponent(TextComponent.fromLegacyText(PREFIX + NOT_BLOCKED.replaceFirst(args[1]))));
 			return;
 		}
 		PLUGIN.removeBlock(pPlayer, toUnBlock);
