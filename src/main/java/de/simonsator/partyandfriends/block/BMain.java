@@ -54,6 +54,7 @@ public class BMain extends PAFExtension implements Listener {
 			Friends.getInstance().addCommand(new UnBlock(configuration.getStringList("Commands.UnBlock.Name"), configuration.getInt("Commands.UnBlock.Priority"), configuration.getString("Messages.UnBlock.Permission"), configuration.getString("Messages.UnBlock.CommandUsage"), this, configuration));
 			if (configuration.getBoolean("Commands.BlockList.Use"))
 				Friends.getInstance().addCommand(new BlockList(this, configuration));
+			registerAsExtension();
 		} catch (IOException | SQLException e) {
 			e.printStackTrace();
 		}
