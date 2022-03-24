@@ -10,6 +10,7 @@ import de.simonsator.partyandfriends.block.subcommands.Block;
 import de.simonsator.partyandfriends.block.subcommands.BlockList;
 import de.simonsator.partyandfriends.block.subcommands.UnBlock;
 import de.simonsator.partyandfriends.communication.sql.MySQLData;
+import de.simonsator.partyandfriends.communication.sql.pool.PoolData;
 import de.simonsator.partyandfriends.friends.commands.Friends;
 import de.simonsator.partyandfriends.friends.subcommands.Add;
 import de.simonsator.partyandfriends.main.Main;
@@ -25,15 +26,12 @@ import net.md_5.bungee.event.EventHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static de.simonsator.partyandfriends.utilities.PatterCollection.PLAYER_PATTERN;
 
-/**
- * @author Simonsator
- * @version 1.0.0 09.01.17
- */
 public class BMain extends PAFExtension implements Listener {
 	private BConnection connection;
 
@@ -41,16 +39,22 @@ public class BMain extends PAFExtension implements Listener {
 	public void onEnable() {
 		try {
 			ConfigurationCreator configuration = new BConfigurationCreator(new File(getConfigFolder(), "config.yml"), this);
+			PoolData poolData = new PoolData(Main.getInstance().getGeneralConfig().getInt("MySQL.Pool.MinPoolSize"),
+					Main.getInstance().getGeneralConfig().getInt("MySQL.Pool.MaxPoolSize"),
+					Main.getInstance().getGeneralConfig().getInt("MySQL.Pool.InitialPoolSize"),
+					Main.getInstance().getGeneralConfig().getInt("MySQL.Pool.IdleConnectionTestPeriod"),
+					Main.getInstance().getGeneralConfig().getBoolean("MySQL.Pool.TestConnectionOnCheckin"),
+					Main.getInstance().getGeneralConfig().getString("MySQL.Pool.ConnectionPool"));
 			connection = new BConnection(new MySQLData(Main.getInstance().getGeneralConfig().getString("MySQL.Host"),
 					Main.getInstance().getGeneralConfig().getString("MySQL.Username"), Main.getInstance().getGeneralConfig().getString("MySQL.Password"),
 					Main.getInstance().getGeneralConfig().getInt("MySQL.Port"), Main.getInstance().getGeneralConfig().getString("MySQL.Database"),
-					Main.getInstance().getGeneralConfig().getString("MySQL.TablePrefix"), Main.getInstance().getGeneralConfig().getBoolean("MySQL.UseSSL")));
+					Main.getInstance().getGeneralConfig().getString("MySQL.TablePrefix"), Main.getInstance().getGeneralConfig().getBoolean("MySQL.UseSSL")), poolData);
 			ProxyServer.getInstance().getPluginManager().registerListener(this, this);
 			Friends.getInstance().addCommand(new Block(configuration.getStringList("Commands.Block.Name"), configuration.getInt("Commands.Block.Priority"), configuration.getString("Messages.Block.Permission"), configuration.getString("Messages.Block.CommandUsage"), this, configuration));
 			Friends.getInstance().addCommand(new UnBlock(configuration.getStringList("Commands.UnBlock.Name"), configuration.getInt("Commands.UnBlock.Priority"), configuration.getString("Messages.UnBlock.Permission"), configuration.getString("Messages.UnBlock.CommandUsage"), this, configuration));
 			if (configuration.getBoolean("Commands.BlockList.Use"))
 				Friends.getInstance().addCommand(new BlockList(this, configuration));
-		} catch (IOException e) {
+		} catch (IOException | SQLException e) {
 			e.printStackTrace();
 		}
 	}
@@ -63,8 +67,8 @@ public class BMain extends PAFExtension implements Listener {
 	@EventHandler
 	public void onInvite(InviteEvent pEvent) {
 		if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
-			pEvent.getCaller().sendError(pEvent.getExecutor(), new TextComponent(PartyCommand.getInstance().getPrefix()
-					+ Main.getInstance().getMessages().getString("Party.Command.Invite.CanNotInviteThisPlayer")));
+			pEvent.getCaller().sendError(pEvent.getExecutor(), new TextComponent(TextComponent.fromLegacyText(PartyCommand.getInstance().getPrefix()
+					+ Main.getInstance().getMessages().getString("Party.Command.Invite.CanNotInviteThisPlayer"))));
 			pEvent.setCancelled(true);
 		}
 	}
@@ -73,7 +77,7 @@ public class BMain extends PAFExtension implements Listener {
 	public void onAdd(FriendshipCommandEvent pEvent) {
 		if (pEvent.getCaller().getClass().equals(Add.class))
 			if (isBlocked(pEvent.getExecutor(), pEvent.getInteractPlayer()) || isBlocked(pEvent.getInteractPlayer(), pEvent.getExecutor())) {
-				pEvent.getCaller().sendError(pEvent.getExecutor(), new TextComponent(Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher(Main.getInstance().getMessages().getString("Friends.Command.Add.CanNotSendThisPlayer")).replaceFirst(pEvent.getInteractPlayer().getName())));
+				pEvent.getCaller().sendError(pEvent.getExecutor(), new TextComponent(TextComponent.fromLegacyText(Friends.getInstance().getPrefix() + PLAYER_PATTERN.matcher(Main.getInstance().getMessages().getString("Friends.Command.Add.CanNotSendThisPlayer")).replaceFirst(pEvent.getInteractPlayer().getName()))));
 				pEvent.setCancelled(true);
 			}
 	}
