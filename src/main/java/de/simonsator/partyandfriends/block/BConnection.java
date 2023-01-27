@@ -31,7 +31,7 @@ public class BConnection extends PoolSQLCommunication {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			close(prepStmt);
+			close(con, prepStmt);
 		}
 
 	}
@@ -48,7 +48,7 @@ public class BConnection extends PoolSQLCommunication {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			close(rs, stmt);
+			close(con, rs, stmt);
 		}
 		return false;
 	}
@@ -65,7 +65,7 @@ public class BConnection extends PoolSQLCommunication {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			close(prepStmt);
+			close(con, prepStmt);
 		}
 	}
 
@@ -80,7 +80,7 @@ public class BConnection extends PoolSQLCommunication {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			close(prepStmt);
+			close(con, prepStmt);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class BConnection extends PoolSQLCommunication {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			close(rs, stmt);
+			close(con, rs, stmt);
 		}
 		return list;
 	}
